@@ -72,6 +72,18 @@ def run_example(example_name, test_mode=False, device=None, num_frames=100):
     print(f"\n=== 运行示例: {example_name} ===")
 
     try:
+        # 保存原始sys.argv
+        original_argv = sys.argv.copy()
+        # 清空sys.argv避免和newton内部参数解析冲突
+        sys.argv = [sys.argv[0]]
+        if device:
+            sys.argv.extend(["--device", device])
+        if test_mode:
+            sys.argv.append("--test")
+        sys.argv.extend(["--viewer", "null" if test_mode else "gl"])
+        sys.argv.extend(["--num-frames", str(num_frames)])
+        sys.argv.append("--quiet")
+
         # 设置设备
         if device:
             wp.set_device(device)
@@ -82,11 +94,7 @@ def run_example(example_name, test_mode=False, device=None, num_frames=100):
 
         # 创建参数
         parser = getattr(mod.Example, "create_parser", create_parser)()
-        args = parser.parse_args([])
-        args.test = test_mode
-        args.viewer = "null" if test_mode else "gl"
-        args.num_frames = num_frames
-        args.quiet = True
+        args = parser.parse_args(sys.argv[1:])
 
         # 初始化查看器
         viewer, args = init(parser)
@@ -100,12 +108,10 @@ def run_example(example_name, test_mode=False, device=None, num_frames=100):
         elapsed = time.time() - start_time
 
         fps = num_frames / elapsed if elapsed > 0 else 0
-        memory_used = wp.get_memory_info(device).active if device else 0
+        memory_used = 0
 
         print(f"✅ 示例运行完成: {example_name}")
         print(f"   耗时: {elapsed:.2f}s, 帧率: {fps:.2f} FPS")
-        if device and "cuda" in device:
-            print(f"   显存使用: {memory_used / 1024**2:.2f} MB")
 
         # 保存性能数据
         if not test_mode:
@@ -113,7 +119,6 @@ def run_example(example_name, test_mode=False, device=None, num_frames=100):
                 "example": example_name,
                 "elapsed": elapsed,
                 "fps": fps,
-                "memory_mb": memory_used / 1024**2,
                 "device": device or wp.get_device().name,
                 "timestamp": time.time()
             }
@@ -133,6 +138,9 @@ def run_example(example_name, test_mode=False, device=None, num_frames=100):
             f.write(str(e))
 
         return False
+    finally:
+        # 恢复原始sys.argv
+        sys.argv = original_argv
 
 
 def run_by_category(category, test_mode=False, device=None):

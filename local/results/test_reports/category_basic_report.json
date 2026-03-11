@@ -1,0 +1,45 @@
+{
+  "category": "basic",
+  "total": 9,
+  "success": 7,
+  "failed": 2,
+  "results": [
+    [
+      "basic_conveyor",
+      true
+    ],
+    [
+      "basic_heightfield",
+      true
+    ],
+    [
+      "basic_joints",
+      true
+    ],
+    [
+      "basic_pendulum",
+      true
+    ],
+    [
+      "basic_shapes",
+      true
+    ],
+    [
+      "basic_urdf",
+      false
+    ],
+    [
+      "basic_viewer",
+      true
+    ],
+    [
+      "recording",
+      true
+    ],
+    [
+      "replay_viewer",
+      false
+    ]
+  ],
+  "timestamp": 1773209179.9422607
+}
